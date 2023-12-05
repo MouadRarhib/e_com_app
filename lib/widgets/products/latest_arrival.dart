@@ -1,8 +1,11 @@
+import 'package:e_com_app/providers/viewed_prod_provider.dart';
 import 'package:e_com_app/widgets/subtitle_text.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../consts/app_constants.dart';
+import '../../models/product_model.dart';
 import '../../screens/inner_screens/product_details.dart';
 import 'heart_btn.dart';
 
@@ -12,11 +15,19 @@ class LatestArrivalProductsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    final productsModel = Provider.of<ProductModel>(context);
+    final viewedProvider = Provider.of<ViewedProdProvider>(context);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: GestureDetector(
         onTap: () async {
-          await Navigator.pushNamed(context, ProductDetails.routName);
+          viewedProvider.addProductToHistory(
+              productId: productsModel.productId);
+          await Navigator.pushNamed(
+            context,
+            ProductDetails.routName,
+            arguments: productsModel.productId,
+          );
         },
         child: SizedBox(
           width: size.width * 0.45,
@@ -27,7 +38,7 @@ class LatestArrivalProductsWidget extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: FancyShimmerImage(
-                    imageUrl: AppConstants.productImageUrl,
+                    imageUrl: productsModel.productImage,
                     width: size.width * 0.28,
                     height: size.width * 0.28,
                   ),
@@ -41,14 +52,14 @@ class LatestArrivalProductsWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Title " * 10,
+                      productsModel.productTitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                     FittedBox(
                       child: Row(
                         children: [
-                          const HeartButtonWidget(),
+                          HeartButtonWidget(productId: productsModel.productId),
                           IconButton(
                             onPressed: () {},
                             icon: const Icon(
@@ -59,9 +70,9 @@ class LatestArrivalProductsWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const FittedBox(
+                    FittedBox(
                       child: SubtitleTextWidget(
-                        label: "166.5\$",
+                        label: "${productsModel.productPrice}\$",
                         color: Colors.blue,
                       ),
                     ),

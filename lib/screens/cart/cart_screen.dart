@@ -1,9 +1,12 @@
 import 'package:e_com_app/screens/cart/cart_widget.dart';
 import 'package:e_com_app/services/assets_manager.dart';
+import 'package:e_com_app/services/my_app_method.dart';
 import 'package:e_com_app/widgets/empty_bag.dart';
 import 'package:e_com_app/widgets/title_text.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../providers/cart_provider.dart';
 import 'bottom_checkout.dart';
 
 class CartScreen extends StatelessWidget {
@@ -11,7 +14,8 @@ class CartScreen extends StatelessWidget {
   final bool isEmpty = false;
   @override
   Widget build(BuildContext context) {
-    return isEmpty
+    final cartProvider = Provider.of<CartProvider>(context);
+    return cartProvider.getCartItems.isEmpty
         ? Scaffold(
             body: EmptyBagWidget(
               imagePath: AssetsManager.shoppingBasket,
@@ -24,14 +28,23 @@ class CartScreen extends StatelessWidget {
         : Scaffold(
             bottomSheet: const CartBottomCheckout(),
             appBar: AppBar(
-              title: const TitlesTextWidget(label: "Cart (5)"),
+              title: TitlesTextWidget(
+                  label: "Cart (${cartProvider.getCartItems.length})"),
               leading: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Image.asset(AssetsManager.shoppingCart),
               ),
               actions: [
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    MyAppMethods.showErrorORWarningDialog(
+                        isError: false,
+                        context: context,
+                        subtitle: "Remove items",
+                        fct: () {
+                          cartProvider.clearLocalCart();
+                        });
+                  },
                   icon: const Icon(
                     Icons.delete_forever_rounded,
                     color: Colors.red,
@@ -39,11 +52,26 @@ class CartScreen extends StatelessWidget {
                 ),
               ],
             ),
-            body: ListView.builder(
-              itemCount: 15,
-              itemBuilder: (context, index) {
-                return const CartWidget();
-              },
+            body: Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: cartProvider.getCartItems.length,
+                    itemBuilder: (context, index) {
+                      return ChangeNotifierProvider.value(
+                        value: cartProvider.getCartItems.values
+                            .toList()
+                            .reversed
+                            .toList()[index],
+                        child: const CartWidget(),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: kBottomNavigationBarHeight + 10,
+                )
+              ],
             ),
           );
   }

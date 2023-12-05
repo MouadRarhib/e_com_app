@@ -1,9 +1,13 @@
+import 'package:e_com_app/providers/product_provider.dart';
 import 'package:e_com_app/providers/theme_provider.dart';
 import 'package:e_com_app/screens/inner_screens/viewed_recently.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'consts/theme_data.dart';
+import 'providers/cart_provider.dart';
+import 'providers/viewed_prod_provider.dart';
+import 'providers/wishlist_provider.dart';
 import 'root_screen.dart';
 import 'screens/auth/forgot_password.dart';
 import 'screens/auth/login.dart';
@@ -11,6 +15,7 @@ import 'screens/auth/register.dart';
 import 'screens/inner_screens/orders/orders_screen.dart';
 import 'screens/inner_screens/product_details.dart';
 import 'screens/inner_screens/wishlist.dart';
+import 'screens/search_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,6 +32,18 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (_) => ThemeProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ProductProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CartProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => WishlistProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ViewedProdProvider(),
         ),
       ],
       child: Consumer<ThemeProvider>(builder: (
@@ -50,6 +67,7 @@ class MyApp extends StatelessWidget {
             OrdersScreenFree.routeName: (context) => const OrdersScreenFree(),
             ForgotPasswordScreen.routeName: (context) =>
                 const ForgotPasswordScreen(),
+            SearchScreen.routeName: (context) => const SearchScreen(),
           },
         );
       }),

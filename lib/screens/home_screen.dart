@@ -4,7 +4,9 @@ import 'package:e_com_app/widgets/products/ctg_rounded_widget.dart';
 import 'package:e_com_app/widgets/products/latest_arrival.dart';
 import 'package:e_com_app/widgets/title_text.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/product_provider.dart';
 import '../services/assets_manager.dart';
 import '../widgets/app_name_text.dart';
 
@@ -14,6 +16,8 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    final productProvider = Provider.of<ProductProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const AppNameTextWidget(fontSize: 20),
@@ -67,7 +71,9 @@ class HomeScreen extends StatelessWidget {
                     scrollDirection: Axis.horizontal,
                     itemCount: 10,
                     itemBuilder: (context, index) {
-                      return const LatestArrivalProductsWidget();
+                      return ChangeNotifierProvider.value(
+                          value: productProvider.getProducts[index],
+                          child: const LatestArrivalProductsWidget());
                     }),
               ),
               const SizedBox(
