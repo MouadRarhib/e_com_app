@@ -3,14 +3,22 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
+// PickImageWidget: A widget for displaying and picking images
 class PickImageWidget extends StatelessWidget {
+  // Constructor to initialize the widget with optional pickedImage and required function
   const PickImageWidget({super.key, this.pickedImage, required this.function});
+
+  // The picked image file
   final XFile? pickedImage;
+
+  // The function to be executed when the user interacts with the widget
   final Function function;
+
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
+        // Display the picked image or a placeholder container
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: ClipRRect(
@@ -30,6 +38,7 @@ class PickImageWidget extends StatelessWidget {
                   ),
           ),
         ),
+        // Positioned button at the top right for user interaction
         Positioned(
           top: 0,
           right: 0,
@@ -39,6 +48,7 @@ class PickImageWidget extends StatelessWidget {
             child: InkWell(
               splashColor: Colors.red,
               borderRadius: BorderRadius.circular(16.0),
+              // Trigger the specified function when the button is tapped
               onTap: () {
                 function();
               },

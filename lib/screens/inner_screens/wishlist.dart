@@ -1,9 +1,9 @@
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:e_com_app/services/assets_manager.dart';
 import 'package:e_com_app/widgets/empty_bag.dart';
 import 'package:e_com_app/widgets/title_text.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../providers/wishlist_provider.dart';
 import '../../services/my_app_method.dart';
@@ -16,6 +16,7 @@ class WishlistScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final wishlistProvider = Provider.of<WishlistProvider>(context);
+
     return wishlistProvider.getWishlistItems.isEmpty
         ? Scaffold(
             body: EmptyBagWidget(
@@ -42,7 +43,8 @@ class WishlistScreen extends StatelessWidget {
                         isError: false,
                         context: context,
                         subtitle: "Remove items",
-                        fct: () {
+                        fct: () async {
+                          await wishlistProvider.clearWishlistFromFirebase();
                           wishlistProvider.clearLocalWishlist();
                         });
                   },

@@ -1,9 +1,9 @@
 import 'package:dynamic_height_grid_view/dynamic_height_grid_view.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:e_com_app/services/assets_manager.dart';
 import 'package:e_com_app/widgets/empty_bag.dart';
 import 'package:e_com_app/widgets/title_text.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../providers/viewed_prod_provider.dart';
 import '../../widgets/products/product_widget.dart';
@@ -15,6 +15,7 @@ class ViewedRecentlyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewedProvider = Provider.of<ViewedProdProvider>(context);
+
     return viewedProvider.getviewedProdItems.isEmpty
         ? Scaffold(
             body: EmptyBagWidget(

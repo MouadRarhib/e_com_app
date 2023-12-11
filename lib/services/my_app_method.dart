@@ -1,10 +1,12 @@
-import 'package:e_com_app/widgets/title_text.dart';
 import 'package:flutter/material.dart';
+import 'package:e_com_app/widgets/title_text.dart';
 
 import '../widgets/subtitle_text.dart';
 import 'assets_manager.dart';
 
+// A utility class containing static methods for common dialog operations
 class MyAppMethods {
+  // Shows an error or warning dialog with specified parameters
   static Future<void> showErrorORWarningDialog({
     required BuildContext context,
     required String subtitle,
@@ -21,6 +23,7 @@ class MyAppMethods {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // Icon to indicate the type of dialog (error or warning)
                 Image.asset(
                   AssetsManager.warning,
                   height: 60,
@@ -29,6 +32,7 @@ class MyAppMethods {
                 const SizedBox(
                   height: 16.0,
                 ),
+                // Display subtitle text with specified fontWeight
                 SubtitleTextWidget(
                   label: subtitle,
                   fontWeight: FontWeight.w600,
@@ -36,9 +40,11 @@ class MyAppMethods {
                 const SizedBox(
                   height: 16.0,
                 ),
+                // Row containing buttons for user interaction
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Cancel button (visible only for non-error dialogs)
                     Visibility(
                       visible: !isError,
                       child: TextButton(
@@ -49,6 +55,7 @@ class MyAppMethods {
                             label: "Cancel", color: Colors.green),
                       ),
                     ),
+                    // OK button to trigger the specified function
                     TextButton(
                       onPressed: () {
                         fct();
@@ -65,6 +72,7 @@ class MyAppMethods {
         });
   }
 
+  // Shows a dialog for selecting image-related options
   static Future<void> imagePickerDialog({
     required BuildContext context,
     required Function cameraFCT,
@@ -83,6 +91,7 @@ class MyAppMethods {
             content: SingleChildScrollView(
                 child: ListBody(
               children: [
+                // Button for triggering the camera function
                 TextButton.icon(
                   onPressed: () {
                     cameraFCT();
@@ -95,6 +104,7 @@ class MyAppMethods {
                     "Camera",
                   ),
                 ),
+                // Button for triggering the gallery function
                 TextButton.icon(
                   onPressed: () {
                     galleryFCT();
@@ -107,6 +117,7 @@ class MyAppMethods {
                     "Gallery",
                   ),
                 ),
+                // Button for triggering the remove function
                 TextButton.icon(
                   onPressed: () {
                     removeFCT();

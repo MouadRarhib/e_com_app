@@ -1,10 +1,12 @@
-import 'package:e_com_app/screens/cart/quantity_btm_sheet.dart';
-import 'package:e_com_app/widgets/subtitle_text.dart';
-import 'package:e_com_app/widgets/title_text.dart';
+import 'dart:developer';
+
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:provider/provider.dart';
+import 'package:e_com_app/screens/cart/quantity_btm_sheet.dart';
+import 'package:e_com_app/widgets/subtitle_text.dart';
+import 'package:e_com_app/widgets/title_text.dart';
 
 import '../../models/cart_model.dart';
 import '../../providers/cart_provider.dart';
@@ -16,12 +18,14 @@ class CartWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Accessing providers
     final cartModelProvider = Provider.of<CartModel>(context);
     final productProvider = Provider.of<ProductProvider>(context);
     final getCurrProduct =
         productProvider.findByProdId(cartModelProvider.productId);
     Size size = MediaQuery.of(context).size;
     final cartProvider = Provider.of<CartProvider>(context);
+
     return getCurrProduct == null
         ? const SizedBox.shrink()
         : FittedBox(
@@ -30,6 +34,7 @@ class CartWidget extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Row(
                   children: [
+                    // Displaying product image with shimmer effect
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: FancyShimmerImage(
@@ -46,6 +51,7 @@ class CartWidget extends StatelessWidget {
                         children: [
                           Row(
                             children: [
+                              // Displaying product title with a maximum of 2 lines
                               SizedBox(
                                 width: size.width * 0.6,
                                 child: TitlesTextWidget(
@@ -55,17 +61,29 @@ class CartWidget extends StatelessWidget {
                               ),
                               Column(
                                 children: [
+                                  // Remove item button and heart (like) button
                                   IconButton(
-                                    onPressed: () {
-                                      cartProvider.removeOneItem(
-                                        productId: getCurrProduct.productId,
-                                      );
+                                    onPressed: () async {
+                                      try {
+                                        await cartProvider
+                                            .removeCartItemFromFirebase(
+                                          cartId: cartModelProvider.cartId,
+                                          productId: getCurrProduct.productId,
+                                          qty: cartModelProvider.quantity,
+                                        );
+                                      } catch (error) {
+                                        log(error.toString());
+                                      }
+                                      // cartProvider.removeOneItem(
+                                      //   productId: getCurrProduct.productId,
+                                      // );
                                     },
                                     icon: const Icon(
                                       Icons.clear,
                                       color: Colors.red,
                                     ),
                                   ),
+                                  // Heart (like) button for the product
                                   HeartButtonWidget(
                                     productId: getCurrProduct.productId,
                                   ),
@@ -73,8 +91,8 @@ class CartWidget extends StatelessWidget {
                               ),
                             ],
                           ),
+                          // Displaying product price and quantity controls
                           Row(
-                            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               SubtitleTextWidget(
                                 label: "${getCurrProduct.productPrice}\$",

@@ -1,80 +1,136 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:provider/provider.dart';
 import 'package:e_com_app/screens/auth/login.dart';
 import 'package:e_com_app/screens/inner_screens/orders/orders_screen.dart';
 import 'package:e_com_app/screens/inner_screens/viewed_recently.dart';
 import 'package:e_com_app/screens/inner_screens/wishlist.dart';
+import 'package:e_com_app/screens/loading_manager.dart';
 import 'package:e_com_app/widgets/app_name_text.dart';
 import 'package:e_com_app/widgets/subtitle_text.dart';
 import 'package:e_com_app/widgets/title_text.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_iconly/flutter_iconly.dart';
-import 'package:provider/provider.dart';
 
+import '../models/user_model.dart';
 import '../providers/theme_provider.dart';
+import '../providers/user_provider.dart';
 import '../services/assets_manager.dart';
+import '../services/my_app_method.dart';
 
-class ProfileScreen extends StatelessWidget {
+// A screen that displays user information, options, and settings.
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  User? user = FirebaseAuth.instance.currentUser;
+  bool _isLoading = true;
+  UserModel? userModel;
+
+  // Fetch user information and handle loading state.
+  Future<void> fetchUserInfo() async {
+    if (user == null) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    try {
+      userModel = await userProvider.fetchUserInfo();
+    } catch (error) {
+      await MyAppMethods.showErrorORWarningDialog(
+        context: context,
+        subtitle: "An error has been occurred $error",
+        fct: () {},
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    fetchUserInfo();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
-        appBar: AppBar(
-          title: const AppNameTextWidget(fontSize: 20),
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset(AssetsManager.shoppingCart),
-          ),
+      appBar: AppBar(
+        title: const AppNameTextWidget(fontSize: 20),
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset(AssetsManager.shoppingCart),
         ),
-        body: SingleChildScrollView(
+      ),
+      // Use LoadingManager to handle loading states.
+      body: LoadingManager(
+        isLoading: _isLoading,
+        child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Visibility(
-                visible: false,
-                child: Padding(
+              Visibility(
+                visible: user == null ? true : false,
+                child: const Padding(
                   padding: EdgeInsets.all(20.0),
                   child: TitlesTextWidget(
-                      label: "Please login to have ultimate access"),
+                    label: "Please login to have ultimate access",
+                  ),
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Row(
-                  children: [
-                    Container(
-                      height: 60,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Theme.of(context).cardColor,
-                        border: Border.all(
-                            color: Theme.of(context).colorScheme.background,
-                            width: 3),
-                        image: const DecorationImage(
-                          image: NetworkImage(
-                            "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460__340.png",
+              const SizedBox(height: 20),
+              userModel == null
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Row(
+                        children: [
+                          Container(
+                            height: 60,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Theme.of(context).cardColor,
+                              border: Border.all(
+                                color: Theme.of(context).colorScheme.background,
+                                width: 3,
+                              ),
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                  userModel!.userImage,
+                                ),
+                                fit: BoxFit.fill,
+                              ),
+                            ),
                           ),
-                          fit: BoxFit.fill,
-                        ),
+                          const SizedBox(width: 7),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TitlesTextWidget(label: userModel!.userName),
+                              SubtitleTextWidget(
+                                label: userModel!.userEmail,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(
-                      width: 7,
-                    ),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TitlesTextWidget(label: "Hadi Kachmar"),
-                        SubtitleTextWidget(label: "coding.with.hadi@gmail.com"),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
               Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12.0,
@@ -84,26 +140,30 @@ class ProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const TitlesTextWidget(label: "General"),
-                    CustomListTile(
-                      imagePath: AssetsManager.orderSvg,
-                      text: "All orders",
-                      function: () async {
-                        await Navigator.pushNamed(
-                          context,
-                          OrdersScreenFree.routeName,
-                        );
-                      },
-                    ),
-                    CustomListTile(
-                      imagePath: AssetsManager.wishlistSvg,
-                      text: "Wishlist",
-                      function: () async {
-                        await Navigator.pushNamed(
-                          context,
-                          WishlistScreen.routName,
-                        );
-                      },
-                    ),
+                    user == null
+                        ? const SizedBox.shrink()
+                        : CustomListTile(
+                            imagePath: AssetsManager.orderSvg,
+                            text: "All orders",
+                            function: () async {
+                              await Navigator.pushNamed(
+                                context,
+                                OrdersScreenFree.routeName,
+                              );
+                            },
+                          ),
+                    user == null
+                        ? const SizedBox.shrink()
+                        : CustomListTile(
+                            imagePath: AssetsManager.wishlistSvg,
+                            text: "Wishlist",
+                            function: () async {
+                              await Navigator.pushNamed(
+                                context,
+                                WishlistScreen.routName,
+                              );
+                            },
+                          ),
                     CustomListTile(
                       imagePath: AssetsManager.recent,
                       text: "Viewed recently",
@@ -129,14 +189,17 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(
                       height: 7,
                     ),
+                    // Switch for toggling between light and dark modes.
                     SwitchListTile(
                       secondary: Image.asset(
                         AssetsManager.theme,
                         height: 30,
                       ),
-                      title: Text(themeProvider.getIsDarkTheme
-                          ? "Dark mode"
-                          : "Light mode"),
+                      title: Text(
+                        themeProvider.getIsDarkTheme
+                            ? "Dark mode"
+                            : "Light mode",
+                      ),
                       value: themeProvider.getIsDarkTheme,
                       onChanged: (value) {
                         themeProvider.setDarkTheme(themeValue: value);
@@ -153,44 +216,60 @@ class ProfileScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        30,
-                      ),
+                      borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  icon: const Icon(Icons.login),
-                  label: const Text(
-                    "Login",
+                  icon: Icon(
+                    user == null ? Icons.login : Icons.logout,
+                  ),
+                  label: Text(
+                    user == null ? "Login" : "Logout",
                   ),
                   onPressed: () async {
-                    await Navigator.pushNamed(
-                      context,
-                      LoginScreen.routName,
-                    );
-                    // await MyAppMethods.showErrorORWarningDialog(
-                    //     context: context,
-                    //     subtitle: "Are you sure?",
-                    //     fct: () async {
-
-                    //     },
-                    //     isError: false);
+                    if (user == null) {
+                      await Navigator.pushNamed(
+                        context,
+                        LoginScreen.routName,
+                      );
+                    } else {
+                      // Show a confirmation dialog before logging out.
+                      await MyAppMethods.showErrorORWarningDialog(
+                        context: context,
+                        subtitle: "Are you sure?",
+                        fct: () async {
+                          await FirebaseAuth.instance.signOut();
+                          if (!mounted) return;
+                          await Navigator.pushNamed(
+                            context,
+                            LoginScreen.routName,
+                          );
+                        },
+                        isError: false,
+                      );
+                    }
                   },
                 ),
               ),
             ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
+// Custom ListTile for displaying options with icons.
 class CustomListTile extends StatelessWidget {
-  const CustomListTile(
-      {super.key,
-      required this.imagePath,
-      required this.text,
-      required this.function});
+  const CustomListTile({
+    super.key,
+    required this.imagePath,
+    required this.text,
+    required this.function,
+  });
+
   final String imagePath, text;
   final Function function;
+
   @override
   Widget build(BuildContext context) {
     return ListTile(

@@ -1,10 +1,10 @@
 import 'package:card_swiper/card_swiper.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:e_com_app/consts/app_constants.dart';
 import 'package:e_com_app/widgets/products/ctg_rounded_widget.dart';
 import 'package:e_com_app/widgets/products/latest_arrival.dart';
 import 'package:e_com_app/widgets/title_text.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../providers/product_provider.dart';
 import '../services/assets_manager.dart';
@@ -31,7 +31,6 @@ class HomeScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            // mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
                 height: size.height * 0.24,
@@ -58,23 +57,33 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(
                 height: 18,
               ),
-              const TitlesTextWidget(
-                label: "Latest arrival",
-                fontSize: 22,
+              Visibility(
+                visible: productProvider.getProducts.isNotEmpty,
+                child: const TitlesTextWidget(
+                  label: "Latest arrival",
+                  fontSize: 22,
+                ),
               ),
               const SizedBox(
                 height: 18,
               ),
-              SizedBox(
-                height: size.height * 0.2,
-                child: ListView.builder(
+              Visibility(
+                visible: productProvider.getProducts.isNotEmpty,
+                child: SizedBox(
+                  height: size.height * 0.2,
+                  child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    itemCount: 10,
+                    itemCount: productProvider.getProducts.length < 10
+                        ? productProvider.getProducts.length
+                        : 10,
                     itemBuilder: (context, index) {
                       return ChangeNotifierProvider.value(
-                          value: productProvider.getProducts[index],
-                          child: const LatestArrivalProductsWidget());
-                    }),
+                        value: productProvider.getProducts[index],
+                        child: const LatestArrivalProductsWidget(),
+                      );
+                    },
+                  ),
+                ),
               ),
               const SizedBox(
                 height: 18,
@@ -87,16 +96,19 @@ class HomeScreen extends StatelessWidget {
                 height: 18,
               ),
               GridView.count(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  crossAxisCount: 4,
-                  children: List.generate(AppConstants.categoriesList.length,
-                      (index) {
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 4,
+                children: List.generate(
+                  AppConstants.categoriesList.length,
+                  (index) {
                     return CategoryRoundedWidget(
                       image: AppConstants.categoriesList[index].image,
                       name: AppConstants.categoriesList[index].name,
                     );
-                  }))
+                  },
+                ),
+              ),
             ],
           ),
         ),

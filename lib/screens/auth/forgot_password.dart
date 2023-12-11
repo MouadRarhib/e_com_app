@@ -1,3 +1,4 @@
+// Importing necessary packages and custom widgets
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import '../../consts/my_validators.dart';
@@ -6,6 +7,7 @@ import '../../widgets/app_name_text.dart';
 import '../../widgets/subtitle_text.dart';
 import '../../widgets/title_text.dart';
 
+// ForgotPasswordScreen class that extends StatefulWidget
 class ForgotPasswordScreen extends StatefulWidget {
   static const routeName = '/ForgotPasswordScreen';
   const ForgotPasswordScreen({super.key});
@@ -14,7 +16,9 @@ class ForgotPasswordScreen extends StatefulWidget {
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
+// _ForgotPasswordScreenState class that extends the state of ForgotPasswordScreen
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  // Initializing necessary controllers and keys
   late final TextEditingController _emailController;
   late final _formKey = GlobalKey<FormState>();
 
@@ -32,10 +36,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
+  // Function to handle the "Request link" button press
   Future<void> _forgetPassFCT() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
-    if (isValid) {}
+    if (isValid) {
+      // Implement password reset logic here
+    }
   }
 
   @override
@@ -54,7 +61,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         },
         child: SafeArea(
           child: ListView(
-            // shrinkWrap: true,
             padding: const EdgeInsets.symmetric(horizontal: 24),
             physics: const BouncingScrollPhysics(),
             children: [
@@ -83,10 +89,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 height: 40,
               ),
 
+              // Section 2 - Form
               Form(
                 key: _formKey,
                 child: Column(
                   children: [
+                    // Email TextFormField
                     TextFormField(
                       controller: _emailController,
                       textInputAction: TextInputAction.next,
@@ -115,16 +123,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 height: 20,
               ),
 
+              // Section 3 - Request Link Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.all(12),
-                    // backgroundColor: Colors.red,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        10,
-                      ),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   icon: const Icon(IconlyBold.send),
